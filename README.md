@@ -1,6 +1,6 @@
 # Maximal weight of a weighted graph.
 
-## $${\color{red}Important notes}$$
+## <span style="color:rgb(255, 70, 70);">Important notes</span>
 
 This program is unfinished and does not compile.
 I've attempted to write a solution to find the longest path in a **directed acyclic graph**. If the graph isn't acyclic, then the solution is NP-Hard.
