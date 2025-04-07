@@ -58,4 +58,4 @@ pear 0.1 orange
 
 Each line in the input file represents a directed edge in the graph and contains three elements:
 
-`<start_node_tag> <edge_weight> <end_node_tag>`
+```<start_node_tag> <edge_weight> <end_node_tag>```
