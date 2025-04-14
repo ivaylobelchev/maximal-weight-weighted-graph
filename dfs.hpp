@@ -1,8 +1,6 @@
 #pragma once
-#include "node.hpp"
-#include <unordered_set>
-#include <vector>
+#include "graph.hpp"
 
-std::vector<Node> getNodes(const std::vector<Edge>& edges, std::map<std::string, size_t>& nodeNames, const std::vector<Node>& nodes);
+std::vector<size_t> DFS(const Graph& graph, size_t start, size_t end);
 
-std::vector<size_t> topSort(const std::vector<Node>& nodes);
+std::vector<size_t> topologicalSort(std::vector<size_t> dfs, std::vector<size_t> kahn);

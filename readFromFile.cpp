@@ -1,4 +1,5 @@
 #include "readFromFile.hpp"
+#include <iostream>
 #include <fstream>
 
 bool readFromFile(const std::string& fileName, std::vector<Edge>& edges)
@@ -10,20 +11,14 @@ bool readFromFile(const std::string& fileName, std::vector<Edge>& edges)
 		return false;
 	}
 
-	std::string line;
+	// Reading the number of lines
 	int lines = 0;
-	while (!textFile.eof()) {
-		std::getline(textFile, line);
-		++lines;
-	}
+	textFile >> lines;
 
-	// Go back to the beginning of the file.
-	textFile.clear();
-	textFile.seekg(0);
-
+	// Reading all the edges in the file
 	for (int i = 0; i < lines; ++i) {
 		std::string first, second;
-		double weight = 0;
+		long double weight = 0;
 		textFile >> first;
 		textFile >> weight;
 		textFile >> second;

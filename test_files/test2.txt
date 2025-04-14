@@ -1,0 +1,21 @@
+19
+
+B 4 C
+B 4 D
+B 11 E
+D -4 E
+D 2 G
+E 9 H
+C 8 D
+C 11 G
+F 1 H
+A 3 B
+A 6 C
+G 2 H
+D 5 F
+G1 2 G
+H1 4 H
+H5 2 H4
+H4 4 H3
+H3 9 H2
+H2 0 H1

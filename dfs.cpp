@@ -1,45 +1,38 @@
-#include "topsort.hpp"
+#include "dfs.hpp"
+#include <algorithm>
 
-void dfs(size_t i, std::vector<bool>& visited, std::vector<size_t>& visitedNodes, const std::vector<Node>& nodes)
+void dfsRec(const Graph& graph, size_t at, std::vector<bool>& visited, std::vector<size_t>& topSort)
 {
-	visited[i] = true;
+	if (visited[at]) return;
 
-	for (int j = 0; j < nodes[j].edges.size(); ++j) {
-		if (visited[nodes[i].edges[j].first] == false) {
-			dfs(nodes[i].edges[j].first, visited, visitedNodes, nodes);
-		}
+	visited[at] = true;
+	topSort.push_back(at);
+
+	for (auto& edge : graph.nodes[at])
+	{
+		dfsRec(graph, edge.first, visited, topSort);
 	}
-
-	visitedNodes.push_back(i);
 }
 
-std::vector<size_t> topSort(const std::vector<Node>& nodes)
+std::vector<size_t> DFS(const Graph& graph, size_t start, size_t end)
 {
-	const size_t numberOfNodes = nodes.size();
+	std::vector<bool> visited(graph.nodes.size(), false);
+	std::vector<size_t> dfsResult;
 
-	std::vector<bool> visited;
-	for (auto i = nodes.size(); i > 0; --i) {
-		visited.push_back(false);
-	}
+	dfsRec(graph, start, visited, dfsResult);
 
-	std::vector<size_t> ordering;
-	for (auto i = nodes.size(); i > 0; --i) {
-		visited.push_back(0);
-	}
+	return dfsResult;
+}
 
-	size_t index = numberOfNodes - 1;
+std::vector<size_t> topologicalSort(std::vector<size_t> dfs, std::vector<size_t> kahn)
+{
+	std::vector<size_t> topSort;
 
-	for (size_t i = 0; i < numberOfNodes; ++i) {
-		if (visited[i] == false) {
-			std::vector<size_t> visitedNodes;
-			dfs(i, visited, visitedNodes, nodes);
-			// Add the result of visitedNodes to ordering
-			for (auto& visitedNode : visitedNodes) {
-				ordering[i] = visitedNode;
-				--i;
-			}
+	for (size_t& kahnValue : kahn) {
+		if (std::find(dfs.begin(), dfs.end(), kahnValue) != dfs.end()) {
+			topSort.push_back(kahnValue);
 		}
 	}
 
-	return ordering;
+	return topSort;
 }

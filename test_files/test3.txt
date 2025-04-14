@@ -1,5 +1,6 @@
-4
+5
 apple 0.7 pear
 apple 0.2 pumpkin
+pear -0.05 pumpkin
 pumpkin 0.3 orange
 pear 0.1 orange

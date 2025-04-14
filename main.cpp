@@ -1,21 +1,8 @@
 #include "readFromFile.hpp"
+#include "dfs.hpp"
 #include "shortestPath.hpp"
-#include "node.hpp"
-#include "topsort.hpp"
-#include <map>
-
-std::vector<Node> reverseEdge(std::vector<Node>& nodes)
-{
-	std::vector <Node> reverse;
-	reverse.resize(nodes.size());
-	for (int i = 0; i < nodes.size(); ++i) {
-		reverse.push_back(nodes[i]);
-		for (int j = 0; j < reverse[i].edges.size(); ++j) {
-			reverse[i].edges[j].second = -reverse[i].edges[j].second;
-		}
-	}
-	return reverse;
-}
+#include "kahn.hpp"
+#include <iostream>
 
 int main(int argc, char** argv)
 {
@@ -41,7 +28,7 @@ int main(int argc, char** argv)
 		// Allows for spaces in the filename
 		if (!std::getline(std::cin, fileName)) {
 			std::cerr << "Error reading the filename!\n";
-			return false;
+			return 1;
 		}
 	}
 
@@ -50,16 +37,43 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	std::cout << "Printing edges:\n\n";
-	for (auto& edge : edges) {
-		std::cout << "Start: " << edge.start << '\n';
-		std::cout << "Weight: " << edge.weight << '\n';
-		std::cout << "End: " << edge.end << "\n\n";
+	Graph graph(edges);
+
+	// Check if start and end exist
+	bool startEndMissing = false;
+	if (graph.nameToNumber.find(start) == graph.nameToNumber.end()) {
+		std::cerr << "\nThe start value \"" << start << "\" is missing!\n";
+		startEndMissing = true;
 	}
+	if (graph.nameToNumber.find(end) == graph.nameToNumber.end()) {
+		std::cerr << "\nThe end value \"" << end << "\" is missing!\n";
+		startEndMissing = true;
+	}
+	if (startEndMissing) return 3;
+
+	// DFS
+	std::vector<size_t> dfs_result = DFS(graph, graph.nameToNumber.at(start), graph.nameToNumber.at(end));
+
+	// Kahn's algorithm - topological sort
+	std::pair<std::vector<size_t>, bool> sortKahn = kahn(graph);
+	if (sortKahn.second) {
+		std::cerr << "\nThis graph contains a cycle!\n";
+		return 4;
+	}
+
+	// Remove all nodes unreachable from the start position by combining DFS and Kahn's algorithm
+	std::vector<size_t> topSort = topologicalSort(dfs_result, sortKahn.first);
 	
+	// Find the shortest path for the same graph with inverted weights
+	// which actually finds the longest path
+	std::pair<long double, std::vector<Edge>> longestPath = shortestPath(graph, graph.nameToNumber.at(start), graph.nameToNumber.at(end), topSort);
 
-	//std::vector<Edge> result = shortestPath(start, end, edges);
-
+	// Print the longest path
+	std::cout << "\nLongest path:\n\n";
+	for (Edge& edge : longestPath.second) {
+		std::cout << '\t' << edge.start << ' ' << -edge.weight << ' ' << edge.end << '\n';
+	}
+	std::cout << "\nTotal weight: " << -longestPath.first << '\n';
 
 	return 0;
 }

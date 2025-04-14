@@ -1,76 +1,31 @@
 #include "shortestPath.hpp"
-#include "node.hpp"
-#include "topsort.hpp"
 
-//std::vector<Node> reverseEdge(std::vector<Node>& nodes)
-//{
-//	std::vector <Node> reverse;
-//	reverse.resize(nodes.size());
-//	for (int i = 0; i < nodes.size(); ++i) {
-//		reverse.push_back(nodes[i]);
-//		for (int j = 0; j < reverse[i].edges.size(); ++j) {
-//			reverse[i].edges[j].second = -reverse[i].edges[j].second;
-//		}
-//	}
-//	return reverse;
-//}
-
-//std::vector<Edge> reverseEdge(std::vector<Edge>& edges)
-//{
-//	std::vector<Edge> reverse;
-//	reverse.resize(edges.size());
-//	for (int i = 0; i < edges.size(); ++i) {
-//		reverse.push_back(edges[i]);
-//		reverse[i].weight = -edges[i].weight;
-//	}
-//	return reverse;
-//}
-
-std::vector<Node> reverseEdge(std::vector<Node>& nodes)
+std::pair<long double, std::vector<Edge>> shortestPath(const Graph& graph, size_t start, size_t end, std::vector<size_t> topSort)
 {
-	std::vector <Node> reverse;
-	reverse.resize(nodes.size());
-	for (int i = 0; i < nodes.size(); ++i) {
-		reverse.push_back(nodes[i]);
-		for (int j = 0; j < reverse[i].edges.size(); ++j) {
-			reverse[i].edges[j].second = -reverse[i].edges[j].second;
-		}
-	}
-	return reverse;
-}
+	std::vector<std::pair<long double, std::vector<Edge>>> nodesBestPath;
+	//		Level 1 - all nodes, ordered by their number
+	//		Level 2 - best path weight to that node, best route to that node
+	nodesBestPath.resize(graph.nodes.size());
 
-std::pair<int, std::vector<Edge>> shortestPath(std::vector<Edge>& edges)
-{
-	std::map<std::string, size_t> nodeNames;
-	std::vector<Node> nodes = getNodes(edges, nodeNames);
+	// start has to be first in the topological sort, which is ensured by DFS
+	nodesBestPath[start].first = 0;
 
-	std::vector<size_t> ordering = topSort(nodes);
-
-	std::vector<Node> nodesReversed = reverseEdge(nodes);
-	std::vector<Node> nodesReversedOrdered;
-	for (int i = 0; i < ordering.size(); ++i) {
-		nodesReversedOrdered.push_back(nodesReversed[ordering[i]]);
-	}
-
-	std::vector<std::pair<int, std::vector<Edge>>> distance;
-	distance.resize(nodesReversedOrdered.size());
-	for (int i = 0; i < distance.size(); ++i) {
-		distance[i].first = 0;
-	}
-
-	for (int i = 0; i < nodesReversedOrdered.size(); ++i) {
-		if (distance[i].first != 0 && !nodesReversedOrdered[i].edges.empty()) {
-			for (auto& edge : nodesReversedOrdered[i].edges) {
-				int newDistance = distance[i].first + edge.second;
-				if (distance[ordering[edge.first]].first == 0) {
-					distance[ordering[edge.first]].first = newDistance;
-				}
-				else {
-					distance[ordering[edge.first]].first = std::min(distance[ordering[edge.first]].first, newDistance);
-				}
+	for (size_t currentNode : topSort) {
+		long double bestPathToCurrentNode = nodesBestPath[currentNode].first;
+		for (auto& edge : graph.nodes[currentNode]) {
+			// Check if this node even has a best path value before checking if it's smaller
+			if ((nodesBestPath[edge.first].second.empty() && currentNode != start)
+				|| bestPathToCurrentNode + edge.second < nodesBestPath[edge.first].first)
+			{
+				// Save new best path value
+				nodesBestPath[edge.first].first = bestPathToCurrentNode + edge.second;
+				// Copy the best path from currentNode
+				nodesBestPath[edge.first].second = nodesBestPath[currentNode].second;
+				// Add the current node to the path
+				nodesBestPath[edge.first].second.push_back(Edge(graph.numberToName.at(currentNode), edge.second, graph.numberToName.at(edge.first)));
 			}
 		}
 	}
 
-	return
+	return nodesBestPath[end];
 }
